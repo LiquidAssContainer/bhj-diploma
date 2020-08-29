@@ -1,15 +1,12 @@
-/**
- * Класс User управляет авторизацией, выходом и
- * регистрацией пользователя из приложения
- * Имеет свойство URL, равное '/user'.
- * */
 class User {
+  static url = '/user';
   /**
    * Устанавливает текущего пользователя в
    * локальном хранилище.
    * */
-  static setCurrent(user) {
 
+  static setCurrent(user) {
+    localStorage.user = JSON.stringify(user);
   }
 
   /**
@@ -17,7 +14,7 @@ class User {
    * пользователе из локального хранилища.
    * */
   static unsetCurrent() {
-
+    delete localStorage.user;
   }
 
   /**
@@ -25,15 +22,33 @@ class User {
    * из локального хранилища
    * */
   static current() {
-
+    let user = localStorage.user;
+    return user ? JSON.parse(user) : undefined;
   }
 
   /**
    * Получает информацию о текущем
    * авторизованном пользователе.
    * */
-  static fetch( data, callback = f => f ) {
+  static fetch(data) {
+    let options = {
+      data,
+      method: 'GET',
+      url: this.url + '/current',
+      responseType: 'json',
+    };
 
+    let promise = createRequest(options);
+
+    promise.then((response) => {
+      if (response.success) {
+        User.setCurrent(response.user);
+      } else {
+        User.unsetCurrent();
+      }
+    });
+
+    return promise;
   }
 
   /**
@@ -42,8 +57,26 @@ class User {
    * сохранить пользователя через метод
    * User.setCurrent.
    * */
-  static login( data, callback = f => f ) {
+  static login(data) {
+    let options = {
+      data,
+      method: 'POST',
+      url: this.url + '/login',
+      responseType: 'json',
+    };
 
+    let promise = createRequest(options);
+
+    promise.then((response) => {
+      if (response.success) {
+        let { id, name } = response.user;
+        User.setCurrent({ id, name });
+      } else {
+        console.log(response.error);
+      }
+    });
+
+    return promise;
   }
 
   /**
@@ -52,15 +85,49 @@ class User {
    * сохранить пользователя через метод
    * User.setCurrent.
    * */
-  static register( data, callback = f => f ) {
+  static register(data) {
+    let options = {
+      data,
+      method: 'POST',
+      url: this.url + '/register',
+      responseType: 'json',
+    };
 
+    let promise = createRequest(options);
+
+    promise.then((response) => {
+      if (response.success) {
+        let { id, name } = response.user;
+        User.setCurrent({ id, name });
+      } else {
+        console.log(response.error);
+      }
+    });
+
+    return promise;
   }
 
   /**
    * Производит выход из приложения. После успешного
    * выхода необходимо вызвать метод User.unsetCurrent
    * */
-  static logout( data, callback = f => f ) {
+  static logout(data) {
+    let options = {
+      data,
+      method: 'POST',
+      url: this.url + '/logout',
+      responseType: 'json',
+    };
 
+    let promise = createRequest(options);
+
+    promise.then((response) => {
+      if (response.success) {
+        User.unsetCurrent();
+        App.getPage('transactions').lastOptions = '';
+      }
+    });
+
+    return promise;
   }
 }

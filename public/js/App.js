@@ -1,6 +1,3 @@
-/**
- * Класс App управляет всем приложением
- * */
 class App {
   /**
    * С вызова этого метода начинается работа всего приложения
@@ -9,8 +6,8 @@ class App {
    * боковой колонки
    * */
   static init() {
-    this.element = document.querySelector( '.app' );
-    this.content = document.querySelector( '.content-wrapper' );
+    this.element = document.querySelector('.app');
+    this.content = document.querySelector('.content-wrapper');
 
     this.initPages();
     this.initForms();
@@ -31,9 +28,8 @@ class App {
    * состояние 'init'
    * */
   static initUser() {
-    User.fetch(User.current(), () =>
-      this.setState( User.current() ? 'user-logged' : 'init' )
-    );
+    let promise = User.fetch(User.current());
+    promise.then(() => this.setState(User.current() ? 'user-logged' : 'init'));
   }
 
   /**
@@ -42,8 +38,8 @@ class App {
    * */
   static initPages() {
     this.pages = {
-      transactions : new TransactionsPage( this.content )
-    }
+      transactions: new TransactionsPage(this.content),
+    };
   }
 
   /**
@@ -51,11 +47,11 @@ class App {
    * */
   static initModals() {
     this.modals = {
-      register: new Modal( document.querySelector( '#modal-register' )),
-      login: new Modal( document.querySelector( '#modal-login' )),
-      createAccount: new Modal( document.querySelector( '#modal-new-account' )),
-      newIncome: new Modal( document.querySelector( '#modal-new-income' )),
-      newExpense: new Modal( document.querySelector( '#modal-new-expense' )),
+      register: new Modal(document.querySelector('#modal-register')),
+      login: new Modal(document.querySelector('#modal-login')),
+      createAccount: new Modal(document.querySelector('#modal-new-account')),
+      newIncome: new Modal(document.querySelector('#modal-new-income')),
+      newExpense: new Modal(document.querySelector('#modal-new-expense')),
     };
   }
 
@@ -64,9 +60,9 @@ class App {
    * */
   static initWidgets() {
     this.widgets = {
-      accounts: new AccountsWidget( document.querySelector( '.accounts-panel' )),
-      transactions: new TransactionsWidget( document.querySelector( '.transactions-panel' )),
-      user: new UserWidget( document.querySelector( '.user-panel' ))
+      accounts: new AccountsWidget(document.querySelector('.accounts-panel')),
+      transactions: new TransactionsWidget(document.querySelector('.transactions-panel')),
+      user: new UserWidget(document.querySelector('.user-panel')),
     };
   }
 
@@ -79,8 +75,8 @@ class App {
       register: new RegisterForm(document.querySelector('#register-form')),
       createAccount: new CreateAccountForm(document.querySelector('#new-account-form')),
       createIncome: new CreateTransactionForm(document.querySelector('#new-income-form')),
-      createExpense: new CreateTransactionForm(document.querySelector('#new-expense-form'))
-    }
+      createExpense: new CreateTransactionForm(document.querySelector('#new-expense-form')),
+    };
   }
 
   /**
@@ -89,8 +85,8 @@ class App {
    * из него свойство modalName:
    * App.getModal( 'login' ); // извелекает App.modals.login
    * */
-  static getModal( modalName ) {
-    return this.modals[ modalName ];
+  static getModal(modalName) {
+    return this.modals[modalName];
   }
 
   /**
@@ -99,8 +95,8 @@ class App {
    * из него свойство pageName:
    * App.getPage( 'transactions' ); // извелекает App.pages.transactions
    * */
-  static getPage( pageName ) {
-    return this.pages[ pageName ];
+  static getPage(pageName) {
+    return this.pages[pageName];
   }
 
   /**
@@ -109,8 +105,8 @@ class App {
    * из него свойство widgetName:
    * App.getWidget( 'transactions' ); // извелекает App.widgets.transactions
    * */
-  static getWidget( widgetName ) {
-    return this.widgets[ widgetName ];
+  static getWidget(widgetName) {
+    return this.widgets[widgetName];
   }
 
   /**
@@ -119,8 +115,8 @@ class App {
    * из него свойство formName:
    * App.getWidget( 'transactions' ); // извелекает App.forms.transactions
    * */
-  static getForm( formName ) {
-    return this.forms[ formName ];
+  static getForm(formName) {
+    return this.forms[formName];
   }
 
   /**
@@ -128,9 +124,9 @@ class App {
    * Вызывает у полученной страницы метод render()
    * и передаёт туда объект options
    * */
-  static showPage( pageName, options ) {
-    const page = this.getPage( pageName );
-    page.render( options );
+  static showPage(pageName, options) {
+    const page = this.getPage(pageName);
+    page.render(options);
   }
 
   /**
@@ -143,17 +139,17 @@ class App {
    * Если состояние state равно 'init', необходимо
    * вызвать метод clear()
    * */
-  static setState( state ) {
+  static setState(state) {
     if (this.state) {
-      this.element.classList.remove( `app_${this.state}` );
+      this.element.classList.remove(`app_${this.state}`);
     }
-    this.element.classList.add( `app_${state}` );
+    this.element.classList.add(`app_${state}`);
     this.state = state;
 
-    if ( state === 'user-logged' ) {
+    if (state === 'user-logged') {
       this.update();
     }
-    if ( state === 'init' ) {
+    if (state === 'init') {
       this.clear();
     }
   }
@@ -165,7 +161,7 @@ class App {
    * метод clear()
    * */
   static clear() {
-    this.getPage( 'transactions' ).clear();
+    this.getPage('transactions').clear();
   }
 
   /**
@@ -185,7 +181,7 @@ class App {
    * метод update()
    * */
   static updatePages() {
-    this.getPage( 'transactions' ).update();
+    this.getPage('transactions').update();
   }
 
   /**
@@ -193,12 +189,12 @@ class App {
    * accounts и user
    * */
   static updateWidgets() {
-    this.getWidget( 'accounts' ).update();
-    this.getWidget( 'user' ).update();
+    this.getWidget('accounts').update();
+    this.getWidget('user').update();
   }
 
   static updateForms() {
-    this.getForm( 'createIncome' ).renderAccountsList();
-    this.getForm( 'createExpense' ).renderAccountsList();
+    this.getForm('createIncome').renderAccountsList();
+    this.getForm('createExpense').renderAccountsList();
   }
 }

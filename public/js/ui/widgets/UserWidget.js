@@ -1,8 +1,3 @@
-/**
- * Класс UserWidget отвечает за
- * отображение информации о имени пользователя
- * после авторизации или его выхода из системы
- * */
 class UserWidget {
   /**
    * Устанавливает полученный элемент
@@ -10,8 +5,11 @@ class UserWidget {
    * Если переданный элемент не существует,
    * необходимо выкинуть ошибку.
    * */
-  constructor( element ) {
-
+  constructor(element) {
+    if (!element) {
+      throw new Error('Пустой элемент!');
+    }
+    this.element = element;
   }
 
   /**
@@ -22,6 +20,9 @@ class UserWidget {
    * авторизованного пользователя
    * */
   update() {
-
+    let user = User.current();
+    if (user) {
+      document.querySelector('.user-name').textContent = user.name;
+    }
   }
 }

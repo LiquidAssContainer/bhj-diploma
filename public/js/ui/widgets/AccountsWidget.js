@@ -1,7 +1,3 @@
-/**
- * Класс AccountsWidget управляет блоком
- * отображения счетов в боковой колонке
- * */
 class AccountsWidget {
   /**
    * Устанавливает текущий элемент в свойство element
@@ -12,8 +8,13 @@ class AccountsWidget {
    * Если переданный элемент не существует,
    * необходимо выкинуть ошибку.
    * */
-  constructor( element ) {
-
+  constructor(element) {
+    if (!element) {
+      throw new Error('err');
+    }
+    this.element = element;
+    this.registerEvents();
+    this.update();
   }
 
   /**
@@ -24,7 +25,18 @@ class AccountsWidget {
    * вызывает AccountsWidget.onSelectAccount()
    * */
   registerEvents() {
+    let createAccountBtn = document.querySelector('.create-account');
 
+    createAccountBtn.addEventListener('click', () => {
+      App.getModal('createAccount').open();
+    });
+
+    this.element.addEventListener('click', (e) => {
+      let closestLi = e.target.closest('li');
+      if (closestLi && closestLi.classList.contains('account')) {
+        this.onSelectAccount(closestLi);
+      }
+    });
   }
 
   /**
@@ -38,7 +50,14 @@ class AccountsWidget {
    * метода renderItem()
    * */
   update() {
-
+    let user = User.current();
+    if (user) {
+      let promise = Account.list(user);
+      promise.then((response) => {
+        this.clear();
+        this.renderItem(response.data);
+      });
+    }
   }
 
   /**
@@ -46,8 +65,11 @@ class AccountsWidget {
    * Для этого необходимо удалять все элементы .account
    * в боковой колонке
    * */
-  clear() {
-
+  clear() { // не очень оптимально выходит
+    let accounts = document.querySelectorAll('.account');
+    for (let item of accounts) {
+      item.remove();
+    }
   }
 
   /**
@@ -57,8 +79,14 @@ class AccountsWidget {
    * счёта класс .active.
    * Вызывает App.showPage( 'transactions', { account_id: id_счёта });
    * */
-  onSelectAccount( element ) {
-
+  onSelectAccount(element) {
+    let activeAccount = document.querySelector('.account.active');
+    if (activeAccount) {
+      activeAccount.classList.remove('active');
+    }
+    let newActive = element;
+    newActive.classList.add('active');
+    App.showPage('transactions', { account_id: newActive.dataset.id });
   }
 
   /**
@@ -66,8 +94,14 @@ class AccountsWidget {
    * отображения в боковой колонке.
    * item - объект с данными о счёте
    * */
-  getAccountHTML( item ) {
-
+  getAccountHTML(item) {
+    return `
+    <li class="account" data-id="${item.id}">
+      <a href="#">
+        <span>${item.name}</span>
+        <span>${item.sum} ₽</span>
+      </a>
+    </li>`;
   }
 
   /**
@@ -76,7 +110,11 @@ class AccountsWidget {
    * AccountsWidget.getAccountHTML HTML-код элемента
    * и добавляет его внутрь элемента виджета
    * */
-  renderItem( item ) {
-
+  renderItem(items) {
+    let string = '';
+    for (let item of items) {
+      string += this.getAccountHTML(item);
+    }
+    document.querySelector('.accounts-panel').insertAdjacentHTML('beforeend', string);
   }
 }
